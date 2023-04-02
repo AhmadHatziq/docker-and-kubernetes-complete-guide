@@ -1,0 +1,10 @@
+# AWS Elastic Beanstalk will use a file called 'docker-compose.yml' ie this file. 
+
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'

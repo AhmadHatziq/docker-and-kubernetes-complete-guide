@@ -1,0 +1,56 @@
+sudo: required 
+services: 
+  - docker 
+env: 
+  global: 
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
+before_install: 
+  # Get encrypted json, decrypts and places it in the project directory 
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+
+  # Download Google Cloud SDK & install locally. 
+  - curl https://sdk.cloud.google.com | bash > /dev/null; 
+
+  # Apply config info. 
+  - source $HOME/google-cloud-sdk/path.bash.inc 
+
+  # Install kubectl 
+  - gcloud components update kubectl 
+
+  # Authorize with GCloud. Credentials are stored in service-account.json  
+  - gcloud auth activate-service-account --key-file service-account.json 
+
+  # Tell GCloud what project to select. 
+  - gcloud config set project multi-k8s-382410
+
+  # Select the compute zone. 
+  - gcloud config set compute/zone asia-southeast1-a
+
+  # Select the container name. 
+  - gcloud container clusters get-credentials multi-cluster
+
+  # Login to Docker using Travis variables 
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
+
+  # Build test image 
+  - docker build -t react_test_image -f ./client/Dockerfile.dev ./client 
+
+script: 
+
+  # Run the test 
+  - docker run -e CI=true react_test_image npm test
+
+after_success: 
+  # Test 
+  - echo "success"
+
+deploy: 
+  provider: script 
+  script: bash ./deploy.sh 
+  on: 
+    branch: main 
+
+
+

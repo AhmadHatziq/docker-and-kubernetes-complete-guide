@@ -1,0 +1,47 @@
+sudo: required 
+
+services: 
+  - docker 
+
+before_install: 
+  - docker build -t docker_image_react_test -f ./client/Dockerfile.dev ./client 
+
+# To run the test script. Will return 0 if all tests passed, 0 if failed.  
+script: 
+  - docker run -e CI=true docker_image_react_test npm test
+
+after_success: 
+  # Build images for each folder using their respective Dockerfiles 
+  - docker build -t bobuvula/multi_client -f ./client/Dockerfile ./client 
+  - docker build -t bobuvula/multi_nginx -f ./nginx/Dockerfile ./nginx 
+  - docker build -t bobuvula/multi_server -f ./server/Dockerfile ./server 
+  - docker build -t bobuvula/multi_worker -f ./worker/Dockerfile ./worker  
+
+  # Login to Docker in a single line command. 
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin 
+
+  # Push the images into Docker hub 
+  - docker push bobuvula/multi_client
+  - docker push bobuvula/multi_nginx
+  - docker push bobuvula/multi_server
+  - docker push bobuvula/multi_worker
+
+# Deploy to AWS 
+deploy: 
+  provider: elasticbeanstalk 
+  region: 'us-west-2'
+  app: 'multi-docker' 
+  env: 'Multidocker-env'
+  bucket_name: 'elasticbeanstalk-us-west-2-904972942839'
+  bucket_path: 'docker-multi'
+
+
+  # Only do the deployment on the feature branch 
+  on: 
+    branch: main 
+
+  # AWS Access Credentials 
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+
+

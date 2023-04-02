@@ -1,0 +1,60 @@
+# This file is used for the local, development environment. 
+version: '3' 
+services: 
+  postgres: 
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=postgres_password
+
+  redis: 
+    image: "redis:latest"
+
+  nginx: # Used for routing 
+    restart: always 
+    build: 
+      context: ./nginx 
+      dockerfile: Dockerfile.dev 
+    ports: 
+    - '3050:80' # We will access localhost via 3050 
+    depends_on:
+      - api 
+      - client 
+  
+  api: 
+    build:
+      context: ./server # Usually, context is a '.' ie look in the current directory. But now, we need to specify the folder. 
+      dockerfile: Dockerfile.dev 
+    volumes: 
+      - /app/node_modules # Do not overwrite this folder in the container. 
+      - ./server:/app # Map the server folder to the 'app' folder in the container 
+    environment: 
+      - REDIS_HOST=redis # Recall that in docker-compose, we only need to specify the service name. Docker-compose will handle the rest. 
+      - REDIS_PORT=6379 # Default port obtained from redis image docs 
+      - PGUSER=postgres
+      - PGHOST=postgres # Name of service defined in the docker-compose file 
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres_password
+      - PGPORT=5432 # From docs 
+
+  client: 
+    build: 
+      context: ./client 
+      # dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile_2.dev 
+    volumes: 
+      - /app/node_modules # Do not overwrite this folder in the container. 
+      - ./client:/app # Map the client folder to the 'app' folder in the container  
+    environment: 
+      - WDS_SOCKET_PORT=0 
+
+  worker: # Why does worker not need the environment variables? 
+    build: 
+      context: ./worker 
+      dockerfile: Dockerfile.dev 
+    volumes: 
+      - /app/node_modules 
+      - ./worker:/app 
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
