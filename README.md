@@ -14,3 +14,23 @@ The folder structure is as follows:
 - [Section 14 - Multi Container K8S](https://github.com/AhmadHatziq/docker-and-kubernetes-complete-guide/tree/main/14/multi-k8s): Multi container Fibonacci application with Kubernetes. 
 - [Section 16 - K8S on GKE](https://github.com/AhmadHatziq/docker-and-kubernetes-complete-guide/tree/main/16/complex-k8s): Multi container Fibonacci application deployed to Google's Kubernetes Engine. 
   - Code repository deployed can also be found [here](https://github.com/AhmadHatziq/complex-k8s). 
+
+The architectures and workflows are as follows: 
+
+# Fibonacci Application Workflow
+![fibo-user-workflow](resources/img/fibo-user-workflow.png "Fibonacci App")
+
+# Development Environment Architecture 
+![dev-fibo-architecture](resources/img/dev-fibo-architecture.png "Development Architecture")
+
+# AWS Production Environment Architecture 
+![aws-architecture](resources/img/aws-architecture.png "AWS Produdction Environment Architecture")
+
+## AWS Travis Workflow 
+![travis-aws](resources/img/travis-aws.png)
+
+# Kubernetes GCP Production Environment Architecture 
+![gcp-k8s-architecture](resources/img/k8s-architecture.png)
+
+## K8S GKE Travis Workflow 
+![travis-k8s-gcp](resources/img/travis-gcp.png) 
