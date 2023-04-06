@@ -34,3 +34,13 @@ The architectures and workflows are as follows:
 
 ## K8S GKE Travis Workflow 
 ![travis-k8s-gcp](resources/img/travis-gcp.png) 
+
+Here is a simple flow chart:
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
